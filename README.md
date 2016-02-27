@@ -1,11 +1,7 @@
 # Azure Blob Backup
 
-## Why?
+Azure provides blob storage redundancy to guarantee the safety of your blob data in case of an outage at Microsoft. However if you accidentally delete your own blob files either by using a blob explorer tool or by way of a bug in your application, you're out of luck. This library provides an easy way to backup snapshots of your blob storage containers.
 
-Azure provides blob storage redundancy to guarantee the safety of your blob data in case of an outage at Microsoft. However if you accidentally delete your own blob files either by using a blob explorer tool or by way of a bug in your application, you're out of luck. This library provides an easy way to backup blob storage containers to a separate blob storage account.
+## Disclaimer
 
-## Contributing
-
-1. Run `.paket\paket.bootstrapper.exe` to get the latest version of Paket.
-2. Run `.paket\paket install` to install all of the project's dependencies.
-3. Start developing!
+Use at your own risk. I use this to backup production blob storage accounts, but if you use it and on some off chance it deletes all your blobs and kills the family cat don't come running to me. If you're unsure about anything read the code; it's only about 100 lines of beautiful F#. Or better still, add a unit test or two!

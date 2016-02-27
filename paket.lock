@@ -8,18 +8,17 @@ NUGET
       FSharp.Core (>= 3.1.2.5)
       NUnit (3.0.1)
     Microsoft.Azure.KeyVault.Core (1.0.0) - framework: >= net40, wpv8.0
-    Microsoft.Data.Edm (5.7.0) - framework: >= net40, winv4.5, wpv8.1, wpv8.0
-    Microsoft.Data.OData (5.7.0) - framework: >= net40, winv4.5, wpv8.1, wpv8.0
+    Microsoft.Data.Edm (5.7.0) - framework: >= net40, winv4.5, wpv8.0
+    Microsoft.Data.OData (5.7.0) - framework: >= net40, winv4.5, wpv8.0
       Microsoft.Data.Edm (5.7.0)
       System.Spatial (5.7.0)
     Microsoft.Data.Services.Client (5.7.0) - framework: >= net40
       Microsoft.Data.OData (5.7.0)
-    Moq (4.2.1510.2205)
-    Newtonsoft.Json (8.0.2) - framework: >= net40, winv4.5, wpv8.1, wpv8.0
+    Newtonsoft.Json (8.0.2) - framework: >= net40, winv4.5, wpv8.0
     NUnit (3.0.1)
-    System.Spatial (5.7.0) - framework: >= net40, winv4.5, wpv8.1, wpv8.0
+    System.Spatial (5.7.0) - framework: >= net40, winv4.5, wpv8.0
     WindowsAzure.Storage (6.2.0)
       Microsoft.Azure.KeyVault.Core (>= 1.0.0) - framework: >= net40, wpv8.0
-      Microsoft.Data.OData (>= 5.6.4) - framework: >= net40, winv4.5, wpv8.1, wpv8.0
+      Microsoft.Data.OData (>= 5.6.4) - framework: >= net40, winv4.5, wpv8.0
       Microsoft.Data.Services.Client (>= 5.6.4) - framework: >= net40
-      Newtonsoft.Json (>= 6.0.8) - framework: >= net40, winv4.5, wpv8.1, wpv8.0
+      Newtonsoft.Json (>= 6.0.8) - framework: >= net40, winv4.5, wpv8.0
