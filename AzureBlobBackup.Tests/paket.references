@@ -1,4 +1,6 @@
 ﻿FSharp.Control.AsyncSeq
+FSharp.Text.RegexProvider
 FsUnit
+Moq
 NUnit
 WindowsAzure.Storage

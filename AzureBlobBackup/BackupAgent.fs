@@ -8,14 +8,14 @@ open FSharp.Text.RegexProvider
 open Microsoft.WindowsAzure.Storage
 open Microsoft.WindowsAzure.Storage.Blob
 
-type BackupContainerRegex = Regex< @"(?<SourceName>.*)__BACKUP__(?<Timestamp>\d*)$" >
-let backupContainerRegex = BackupContainerRegex()
+type internal BackupContainerRegex = Regex< @"(?<SourceName>.*)__BACKUP__(?<Timestamp>\d*)$" >
+let internal backupContainerRegex = BackupContainerRegex()
 
 type ICloudBlobContainer =
     abstract Name : string
     abstract ListBlobsSegmentedAsync : BlobContinuationToken -> Task<BlobResultSegment>
 
-type AbstractedCloudBlobContainer (cloudBlobContainer : CloudBlobContainer) =
+type private AbstractedCloudBlobContainer (cloudBlobContainer : CloudBlobContainer) =
     interface ICloudBlobContainer with
         member this.Name = cloudBlobContainer.Name
         member this.ListBlobsSegmentedAsync continuationToken =
