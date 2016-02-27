@@ -143,3 +143,7 @@ let ``It creates backup containers with increasing timestamps`` () =
         |> Seq.filter (fun x -> not (firstTimestamps |> Seq.contains x))
 
     Seq.max firstTimestamps |> should be (lessThan <| Seq.min secondTimestamps)
+
+//[<Test>]
+//let ``It removes old backups that exceed the old backups count`` () =
+//    

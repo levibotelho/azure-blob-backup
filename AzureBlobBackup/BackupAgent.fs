@@ -13,11 +13,13 @@ let internal backupContainerRegex = BackupContainerRegex()
 
 type ICloudBlobContainer =
     abstract Name : string
+    abstract DeleteAsync : unit -> Async<unit>
     abstract ListBlobsSegmentedAsync : BlobContinuationToken -> Task<BlobResultSegment>
 
 type private AbstractedCloudBlobContainer (cloudBlobContainer : CloudBlobContainer) =
     interface ICloudBlobContainer with
         member this.Name = cloudBlobContainer.Name
+        member this.DeleteAsync () = async { do! cloudBlobContainer.DeleteAsync() |> Async.AwaitTask }
         member this.ListBlobsSegmentedAsync continuationToken =
             cloudBlobContainer.ListBlobsSegmentedAsync(continuationToken)
 
@@ -25,6 +27,7 @@ type IBlobClient =
     abstract ListContainerBlobsAsync : ICloudBlobContainer -> Async<AsyncSeq<ICloudBlob>>
     abstract ListAllContainersAsync : unit -> Async<AsyncSeq<ICloudBlobContainer>>
     abstract CopyBlobAsync : string -> ICloudBlob -> Async<unit>
+    abstract DeleteContainerAsync : ICloudBlobContainer -> Async<unit>
 
 type BlobClient (connectionString) =
     let client = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient()
@@ -73,8 +76,10 @@ type BlobClient (connectionString) =
                 let targetBlob = targetContainer.GetBlobReference(sourceBlob.Name)
                 do! targetBlob.StartCopyAsync(sourceBlob.Uri) |> Async.AwaitTask |> Async.Ignore
             }
+        member this.DeleteContainerAsync container =
+            async { do! container.DeleteAsync() }
 
-let BackupAsync (storageClient : IBlobClient) backupsToKeep =
+let BackupAsync (storageClient : IBlobClient) oldBackupsToKeep =
     let timestampFormat = "yyyyMMddHHmmss"
 
     let parseTimestamp timestamp = DateTime.ParseExact(timestamp, timestampFormat, CultureInfo.InvariantCulture)
@@ -88,9 +93,12 @@ let BackupAsync (storageClient : IBlobClient) backupsToKeep =
         sprintf "%s__BACKUP__%s" originalName <| formatTimestamp DateTime.Now
 
     async {
-        let! containers = storageClient.ListAllContainersAsync ()
+        let! containersSeq = storageClient.ListAllContainersAsync ()
+        let! containers = containersSeq |> AsyncSeq.toArrayAsync
+
         do! containers
-            |> AsyncSeq.filter (not << isBackupContainer)
+            |> Seq.filter (not << isBackupContainer)
+            |> AsyncSeq.ofSeq
             |> AsyncSeq.iterAsync (fun sourceContainer ->
                 async {
                     let! sourceBlobs = storageClient.ListContainerBlobsAsync sourceContainer
@@ -99,4 +107,20 @@ let BackupAsync (storageClient : IBlobClient) backupsToKeep =
                     do! sourceBlobs |> AsyncSeq.iterAsync copyBlobAsync
                 }
             )
+
+        do! containers
+            |> Seq.filter isBackupContainer
+            |> Seq.groupBy (fun x -> (backupContainerRegex.Match x.Name).SourceName)
+            |> AsyncSeq.ofSeq
+            |> AsyncSeq.iterAsync (fun (sourceName, backupContainers) ->
+                async {
+                    do! backupContainers
+                        |> Seq.sortByDescending (fun container -> container.Name)
+                        |> Seq.skip oldBackupsToKeep
+                        |> AsyncSeq.ofSeq
+                        |> AsyncSeq.iterAsync (fun container ->
+                            async {
+                                do! storageClient.DeleteContainerAsync container
+                            })
+                })
     } |> Async.StartAsTask
