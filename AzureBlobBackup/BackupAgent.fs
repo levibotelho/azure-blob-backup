@@ -79,8 +79,8 @@ type BlobClient (connectionString) =
         member this.DeleteContainerAsync container =
             async { do! container.DeleteAsync() }
 
-let BackupAsync (storageClient : IBlobClient) oldBackupsToKeep =
-    let timestampFormat = "yyyyMMddHHmmss"
+let BackupAsync (storageClient : IBlobClient) backupsToKeep =
+    let timestampFormat = "yyyyMMddHHmmssFFF"
 
     let parseTimestamp timestamp = DateTime.ParseExact(timestamp, timestampFormat, CultureInfo.InvariantCulture)
     let formatTimestamp (timestamp : DateTime) = timestamp.ToString(timestampFormat)
@@ -94,33 +94,32 @@ let BackupAsync (storageClient : IBlobClient) oldBackupsToKeep =
 
     async {
         let! containersSeq = storageClient.ListAllContainersAsync ()
-        let! containers = containersSeq |> AsyncSeq.toArrayAsync
+        let! preBackupContainers = containersSeq |> AsyncSeq.toArrayAsync
 
-        do! containers
+        preBackupContainers
             |> Seq.filter (not << isBackupContainer)
-            |> AsyncSeq.ofSeq
-            |> AsyncSeq.iterAsync (fun sourceContainer ->
+            |> Seq.iter (fun sourceContainer ->
                 async {
                     let! sourceBlobs = storageClient.ListContainerBlobsAsync sourceContainer
                     let targetContainerName = createTargetContainerName sourceContainer.Name
                     let copyBlobAsync = storageClient.CopyBlobAsync targetContainerName
                     do! sourceBlobs |> AsyncSeq.iterAsync copyBlobAsync
-                }
+                } |> Async.RunSynchronously
             )
-
-        do! containers
-            |> Seq.filter isBackupContainer
-            |> Seq.groupBy (fun x -> (backupContainerRegex.Match x.Name).SourceName)
-            |> AsyncSeq.ofSeq
-            |> AsyncSeq.iterAsync (fun (sourceName, backupContainers) ->
+            
+        let preBackupContainersToKeep = backupsToKeep - 1;
+        preBackupContainers
+        |> Seq.filter isBackupContainer
+        |> Seq.groupBy (fun x -> (backupContainerRegex.Match x.Name).SourceName.Value)
+        |> Seq.iter (fun (sourceName, backupContainers) ->
+            backupContainers
+            |> Seq.sortByDescending (fun container -> container.Name)
+            |> Seq.skip preBackupContainersToKeep
+            |> Seq.iter (fun x ->
                 async {
-                    do! backupContainers
-                        |> Seq.sortByDescending (fun container -> container.Name)
-                        |> Seq.skip oldBackupsToKeep
-                        |> AsyncSeq.ofSeq
-                        |> AsyncSeq.iterAsync (fun container ->
-                            async {
-                                do! storageClient.DeleteContainerAsync container
-                            })
-                })
+                    let foo = ""
+                    do! storageClient.DeleteContainerAsync x
+                } |> Async.RunSynchronously
+            )
+        )
     } |> Async.StartAsTask
