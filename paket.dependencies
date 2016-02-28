@@ -3,6 +3,8 @@ source https://nuget.org/api/v2
 nuget FsUnit ~> 2.0
 nuget FSharp.Control.AsyncSeq ~> 2.0
 nuget FSharp.Text.RegexProvider ~> 0.0
+nuget Microsoft.Azure.WebJobs ~> 1.1
+nuget MSBuildTasks ~> 1.4
 nuget Moq ~> 4.2
 nuget NUnit ~> 3.0
 nuget WindowsAzure.Storage ~> 6.2

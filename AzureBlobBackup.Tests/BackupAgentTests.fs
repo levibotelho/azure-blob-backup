@@ -2,7 +2,8 @@
 
 open System
 open System.Threading.Tasks
-open AzureBlobBackup.BackupAgent
+open AzureBlobBackup
+open BackupAgent
 open FSharp.Control
 open FsUnit
 open Microsoft.WindowsAzure.Storage.Blob

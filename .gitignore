@@ -197,3 +197,6 @@ FakesAssemblies/
 
 # Paket
 .paket/paket.exe
+
+# Nuget
+AzureBlobBackup/nuget.exe
