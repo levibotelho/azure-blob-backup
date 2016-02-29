@@ -17,8 +17,8 @@ open System.Runtime.InteropServices
 
 [<assembly: Guid("ec94a245-46f3-46a6-8b56-b841fc68d4c6")>]
 
-[<assembly: AssemblyVersion("1.0.3")>]
-[<assembly: AssemblyFileVersion("1.0.3")>]
+[<assembly: AssemblyVersion("1.0.4")>]
+[<assembly: AssemblyFileVersion("1.0.4")>]
 
 [<assembly: InternalsVisibleToAttribute("AzureBlobBackup.Tests")>]
 
