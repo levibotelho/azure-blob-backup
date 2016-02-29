@@ -14,6 +14,7 @@
       <dependency id="FSharp.Text.RegexProvider" version="0.0.7" />
       <dependency id="WindowsAzure.Storage" version="5.0.2" />
     </dependencies>
+    <tags>azure blob storage backup</tags>
     <projectUrl>https://github.com/levibotelho/azure-blob-backup</projectUrl>
     <licenseUrl>https://github.com/levibotelho/azure-blob-backup/blob/master/LICENSE</licenseUrl>
   </metadata>
