@@ -8,9 +8,9 @@ Azure provides blob storage redundancy to guarantee the safety of your blob data
 2. Add a reference to FSharp.Core 4.4.0.0
 3. Code! (Works great in periodic WebJobs...)
 
-    var blobClient = new BlobClient("YOUR BLOB CONNECTION STRING");
-	var oldBackupsToKeep = 3;
-    BackupAgent.BackupAsync(blobClient, oldBackupsToKeep).Wait();
+      var blobClient = new BlobClient("YOUR BLOB CONNECTION STRING");
+      var oldBackupsToKeep = 3;
+      BackupAgent.BackupAsync(blobClient, oldBackupsToKeep).Wait();
 
 ## Disclaimer
 
