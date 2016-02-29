@@ -2,17 +2,17 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>AzureBlobBackup</id>
-    <version>1.0.4.0</version>
+    <version>1.0.5.0</version>
     <title>AzureBlobBackup</title>
     <authors>Levi Botelho</authors>
     <owners>Levi Botelho</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>Backup Azure Blob storage containers.</description>
+    <description>Backup Azure Blob Storage containers.</description>
     <copyright>Copyright © Levi Botelho 2016</copyright>
     <dependencies>
       <dependency id="FSharp.Control.AsyncSeq" version="2.0.3" />
       <dependency id="FSharp.Text.RegexProvider" version="0.0.7" />
-      <dependency id="WindowsAzure.Storage" version="5.0.2" />
+      <dependency id="WindowsAzure.Storage" version="6.2.0" />
     </dependencies>
     <tags>azure blob storage backup</tags>
     <projectUrl>https://github.com/levibotelho/azure-blob-backup</projectUrl>

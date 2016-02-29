@@ -67,6 +67,7 @@ type BlobClient (connectionString) =
         member this.CopyBlobAsync targetContainerName (sourceBlob : ICloudBlob) =
             let targetContainer = client.GetContainerReference(targetContainerName)
             async {
+                do! targetContainer.CreateIfNotExistsAsync() |> Async.AwaitTask |> Async.Ignore
                 let targetBlob = targetContainer.GetBlobReference(sourceBlob.Name)
                 do! targetBlob.StartCopyAsync(sourceBlob.Uri) |> Async.AwaitTask |> Async.Ignore
             }

@@ -7,4 +7,4 @@ nuget Microsoft.Azure.WebJobs ~> 1.1
 nuget MSBuildTasks ~> 1.4
 nuget Moq ~> 4.2
 nuget NUnit ~> 3.0
-nuget WindowsAzure.Storage ~> 5.0
+nuget WindowsAzure.Storage ~> 6.0

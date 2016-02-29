@@ -80,7 +80,7 @@ let getContainerNames (clientStub : ClientStub) =
 
 let getBackupContainerNames (clientStub : ClientStub) =
     getContainerNames clientStub
-    |> Seq.filter (fun x -> x.Contains("__BACKUP__"))
+    |> Seq.filter (fun x -> x.Contains("-backup-"))
 
 [<Test>]
 let ``It works`` () =
@@ -117,11 +117,11 @@ let ``It creates backup containers with names consisting of the source name`` ()
     allBackupContainersStartWithARealContainerName |> should equal true
 
 [<Test>]
-let ``It creates backup containers with names containing the word __BACKUP__`` () =
+let ``It creates backup containers with names containing the word -backup-`` () =
     let clientStub = ClientStub ()
     Backup clientStub 1
     let names = getBackupContainerNames clientStub
-    let allNamesContainBackupText = names |> Seq.forall (fun x -> x.Contains("__BACKUP__"))
+    let allNamesContainBackupText = names |> Seq.forall (fun x -> x.Contains("-backup-"))
     allNamesContainBackupText |> should equal true
 
 [<Test>]

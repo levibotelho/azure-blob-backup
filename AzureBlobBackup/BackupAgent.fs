@@ -5,7 +5,7 @@ open System.Globalization
 open FSharp.Control
 open FSharp.Text.RegexProvider
 
-type internal BackupContainerRegex = Regex< @"(?<SourceName>.*)__BACKUP__(?<Timestamp>\d*)$" >
+type internal BackupContainerRegex = Regex< @"(?<SourceName>.*)-backup-(?<Timestamp>\d*)$" >
 let internal backupContainerRegex = BackupContainerRegex()
 
 let BackupAsync (blobClient : IBlobClient) backupsToKeep =
@@ -19,11 +19,15 @@ let BackupAsync (blobClient : IBlobClient) backupsToKeep =
         regexMatch.Success
 
     let createTargetContainerName originalName =
-        sprintf "%s__BACKUP__%s" originalName <| formatTimestamp DateTime.Now
+        sprintf "%s-backup-%s" originalName <| formatTimestamp DateTime.Now
 
     async {
         let! containersSeq = blobClient.ListAllContainersAsync ()
         let! preBackupContainers = containersSeq |> AsyncSeq.toArrayAsync
+
+        let tooLongContainerNames = preBackupContainers |> Seq.filter (fun x -> x.Name.Length > 38)
+        if not (tooLongContainerNames |> Seq.isEmpty) then
+            invalidOp <| sprintf "The container names %s are too long to backup. Container names must not exceed 38 characters." (String.Join("", tooLongContainerNames))
 
         preBackupContainers
             |> Seq.filter (not << isBackupContainer)
