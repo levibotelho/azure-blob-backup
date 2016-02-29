@@ -8,7 +8,7 @@ open FSharp.Text.RegexProvider
 type internal BackupContainerRegex = Regex< @"(?<SourceName>.*)__BACKUP__(?<Timestamp>\d*)$" >
 let internal backupContainerRegex = BackupContainerRegex()
 
-let BackupAsync (storageClient : IBlobClient) backupsToKeep =
+let BackupAsync (blobClient : IBlobClient) backupsToKeep =
     let timestampFormat = "yyyyMMddHHmmssFFF"
 
     let parseTimestamp timestamp = DateTime.ParseExact(timestamp, timestampFormat, CultureInfo.InvariantCulture)
@@ -22,16 +22,16 @@ let BackupAsync (storageClient : IBlobClient) backupsToKeep =
         sprintf "%s__BACKUP__%s" originalName <| formatTimestamp DateTime.Now
 
     async {
-        let! containersSeq = storageClient.ListAllContainersAsync ()
+        let! containersSeq = blobClient.ListAllContainersAsync ()
         let! preBackupContainers = containersSeq |> AsyncSeq.toArrayAsync
 
         preBackupContainers
             |> Seq.filter (not << isBackupContainer)
             |> Seq.iter (fun sourceContainer ->
                 async {
-                    let! sourceBlobs = storageClient.ListContainerBlobsAsync sourceContainer
+                    let! sourceBlobs = blobClient.ListContainerBlobsAsync sourceContainer
                     let targetContainerName = createTargetContainerName sourceContainer.Name
-                    let copyBlobAsync = storageClient.CopyBlobAsync targetContainerName
+                    let copyBlobAsync = blobClient.CopyBlobAsync targetContainerName
                     do! sourceBlobs |> AsyncSeq.iterAsync copyBlobAsync
                 } |> Async.RunSynchronously
             )
@@ -47,7 +47,7 @@ let BackupAsync (storageClient : IBlobClient) backupsToKeep =
             |> Seq.iter (fun x ->
                 async {
                     let foo = ""
-                    do! storageClient.DeleteContainerAsync x
+                    do! blobClient.DeleteContainerAsync x
                 } |> Async.RunSynchronously
             )
         )
