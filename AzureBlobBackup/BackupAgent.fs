@@ -9,6 +9,9 @@ type internal BackupContainerRegex = Regex< @"(?<SourceName>.*)-backup-(?<Timest
 let internal backupContainerRegex = BackupContainerRegex()
 
 let BackupAsync (blobClient : IBlobClient) backupsToKeep =
+    if backupsToKeep < 1 then
+        invalidArg "You must keep at least one backup." "backupsToKeep"
+
     let timestampFormat = "yyyyMMddHHmmssFFF"
 
     let parseTimestamp timestamp = DateTime.ParseExact(timestamp, timestampFormat, CultureInfo.InvariantCulture)
@@ -24,13 +27,13 @@ let BackupAsync (blobClient : IBlobClient) backupsToKeep =
     async {
         let! containersSeq = blobClient.ListAllContainersAsync ()
         let! preBackupContainers = containersSeq |> AsyncSeq.toArrayAsync
+        let containersToBackup = preBackupContainers |> Seq.filter (not << isBackupContainer)
 
-        let tooLongContainerNames = preBackupContainers |> Seq.filter (fun x -> x.Name.Length > 38)
+        let tooLongContainerNames = containersToBackup |> Seq.filter (fun x -> x.Name.Length > 38) |> Seq.map (fun x -> x.Name)
         if not (tooLongContainerNames |> Seq.isEmpty) then
-            invalidOp <| sprintf "The container names %s are too long to backup. Container names must not exceed 38 characters." (String.Join("", tooLongContainerNames))
+            invalidOp <| sprintf "The container names %s are too long to backup. Container names must not exceed 38 characters." (String.Join(", ", tooLongContainerNames))
 
-        preBackupContainers
-            |> Seq.filter (not << isBackupContainer)
+        containersToBackup
             |> Seq.iter (fun sourceContainer ->
                 async {
                     let! sourceBlobs = blobClient.ListContainerBlobsAsync sourceContainer
@@ -45,14 +48,16 @@ let BackupAsync (blobClient : IBlobClient) backupsToKeep =
         |> Seq.filter isBackupContainer
         |> Seq.groupBy (fun x -> (backupContainerRegex.Match x.Name).SourceName.Value)
         |> Seq.iter (fun (sourceName, backupContainers) ->
-            backupContainers
-            |> Seq.sortByDescending (fun container -> container.Name)
-            |> Seq.skip preBackupContainersToKeep
-            |> Seq.iter (fun x ->
-                async {
-                    let foo = ""
-                    do! blobClient.DeleteContainerAsync x
-                } |> Async.RunSynchronously
-            )
+            let backupContainersCount = backupContainers |> Seq.length
+            if backupContainersCount > preBackupContainersToKeep then
+                backupContainers
+                |> Seq.sortByDescending (fun container -> container.Name)
+                |> Seq.skip preBackupContainersToKeep
+                |> Seq.iter (fun x ->
+                    async {
+                        let foo = ""
+                        do! blobClient.DeleteContainerAsync x
+                    } |> Async.RunSynchronously
+                )
         )
     } |> Async.StartAsTask
