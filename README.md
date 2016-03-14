@@ -5,8 +5,7 @@ Azure provides blob storage redundancy to guarantee the safety of your blob data
 ## Using
 
 1. Grab the [NuGet package](https://www.nuget.org/packages/AzureBlobBackup/) (AzureBlobBackup)
-2. Add a reference to FSharp.Core 4.4.0.0
-3. Code! (Works great in periodic WebJobs...)
+2. Code! (Works great in periodic WebJobs...)
 
       var blobClient = new BlobClient("YOUR BLOB CONNECTION STRING");
       var oldBackupsToKeep = 3;
