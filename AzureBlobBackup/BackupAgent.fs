@@ -2,13 +2,14 @@
 
 open System
 open System.Globalization
+open System.Threading.Tasks
 open FSharp.Control
 open FSharp.Text.RegexProvider
 
 type internal BackupContainerRegex = Regex< @"(?<SourceName>.*)-backup-(?<Timestamp>\d*)$" >
 let internal backupContainerRegex = BackupContainerRegex()
 
-let BackupAsync (blobClient : IBlobClient) backupsToKeep =
+let internal BackupAsyncInternal (blobClient : IBlobClient) backupsToKeep =
     if backupsToKeep < 1 then
         invalidArg "You must keep at least one backup." "backupsToKeep"
 
@@ -60,4 +61,8 @@ let BackupAsync (blobClient : IBlobClient) backupsToKeep =
                     } |> Async.RunSynchronously
                 )
         )
-    } |> Async.StartAsTask
+    } |> Async.StartAsTask :> Task
+
+let BackupAsync connectionString backupsToKeep =
+    let blobClient = BlobClient(connectionString)
+    BackupAsyncInternal blobClient backupsToKeep

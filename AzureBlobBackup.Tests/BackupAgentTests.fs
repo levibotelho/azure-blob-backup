@@ -25,13 +25,13 @@ let container1Blobs = seq { yield aBlob; yield bBlob; yield cBlob }
 let container2Blobs = seq { yield dBlob; yield eBlob }
 let allBlobs = seq { yield! container1Blobs; yield! container2Blobs }
 
-type DefaultBlobContainer (name, blobs) =
+type private DefaultBlobContainer (name, blobs) =
     interface ICloudBlobContainer with
         member this.Name = name
         member this.ListBlobsSegmentedAsync continuationToken = Task.FromResult(blobs)
         member this.DeleteAsync () = async { return () }
 
-type ClientStub () =
+type private ClientStub () =
     let mutable containers =
         seq {
             yield ("1", container1Blobs |> Seq.toList)
@@ -70,15 +70,15 @@ type ClientStub () =
 // once every 16 milliseconds or so and we get bugs in these tests if we make two backups in immediate succession
 // as the container names will be the same. As we can assume that nobody is going to be backing up their blobs
 // more than once per 20ms this delay has no production impact.
-let Backup blobClient backupsToKeep =
+let private Backup blobClient backupsToKeep =
     Task.Delay(20).Wait()
-    let task = BackupAsync blobClient backupsToKeep
+    let task = BackupAsyncInternal blobClient backupsToKeep
     task.Wait()
 
-let getContainerNames (clientStub : ClientStub) =
+let private getContainerNames (clientStub : ClientStub) =
     clientStub.Containers |> Seq.map (fun x -> x.Key)
 
-let getBackupContainerNames (clientStub : ClientStub) =
+let private getBackupContainerNames (clientStub : ClientStub) =
     getContainerNames clientStub
     |> Seq.filter (fun x -> x.Contains("-backup-"))
 

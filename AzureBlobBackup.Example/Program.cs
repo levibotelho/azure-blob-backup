@@ -4,8 +4,7 @@
     {
         static void Main(string[] args)
         {
-            var blobClient = new BlobClient("UseDevelopmentStorage=true");
-            BackupAgent.BackupAsync(blobClient, 3).Wait();
+            BackupAgent.BackupAsync("UseDevelopmentStorage=true", 3).Wait();
         }
     }
 }

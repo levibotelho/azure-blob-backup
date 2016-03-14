@@ -5,7 +5,7 @@ open FSharp.Control
 open Microsoft.WindowsAzure.Storage
 open Microsoft.WindowsAzure.Storage.Blob
 
-type ICloudBlobContainer =
+type internal ICloudBlobContainer =
     abstract Name : string
     abstract DeleteAsync : unit -> Async<unit>
     abstract ListBlobsSegmentedAsync : BlobContinuationToken -> Task<BlobResultSegment>
@@ -17,13 +17,13 @@ type private AbstractedCloudBlobContainer (cloudBlobContainer : CloudBlobContain
         member this.ListBlobsSegmentedAsync continuationToken =
             cloudBlobContainer.ListBlobsSegmentedAsync(continuationToken)
 
-type IBlobClient =
+type internal IBlobClient =
     abstract ListContainerBlobsAsync : ICloudBlobContainer -> Async<AsyncSeq<ICloudBlob>>
     abstract ListAllContainersAsync : unit -> Async<AsyncSeq<ICloudBlobContainer>>
     abstract CopyBlobAsync : string -> ICloudBlob -> Async<unit>
     abstract DeleteContainerAsync : ICloudBlobContainer -> Async<unit>
 
-type BlobClient (connectionString) =
+type internal BlobClient (connectionString) =
     let client = CloudStorageAccount.Parse(connectionString).CreateCloudBlobClient()
 
     let listContainersSegmentedAsync continuationToken =
